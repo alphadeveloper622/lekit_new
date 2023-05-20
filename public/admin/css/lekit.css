@@ -1,0 +1,189 @@
+.row-cards-one {
+    margin-top: 30px !important;
+}
+
+.row-cards-one .mycard.bg1 {
+    background-image: -webkit-gradient(linear, left top, right top, from(#f85108), to(#f4ad3c));
+    background-image: -webkit-linear-gradient(left, #f85108, #f4ad3c);
+    background-image: -o-linear-gradient(left, #f85108, #f4ad3c);
+    background-image: linear-gradient(to right, #f85108, #f4ad3c);
+}
+
+.row-cards-one .mycard.bg1::after {
+    background: #f85108;
+}
+
+.row-cards-one .mycard.bg2 {
+    background-image: -webkit-gradient(linear, left top, right top, from(#047edf), to(#0bb9fa));
+    background-image: -webkit-linear-gradient(left, #047edf, #0bb9fa);
+    background-image: -o-linear-gradient(left, #047edf, #0bb9fa);
+    background-image: linear-gradient(to right, #047edf, #0bb9fa);
+}
+
+.row-cards-one .mycard.bg2::after {
+    background: #047edf;
+}
+
+.row-cards-one .mycard.bg3 {
+    background-image: -webkit-gradient(linear, left top, right top, from(#0fa49b), to(#03dbce));
+    background-image: -webkit-linear-gradient(left, #0fa49b, #03dbce);
+    background-image: -o-linear-gradient(left, #0fa49b, #03dbce);
+    background-image: linear-gradient(to right, #0fa49b, #03dbce);
+}
+
+.row-cards-one .mycard.bg3::after {
+    background: #0fa49b;
+}
+
+.row-cards-one .mycard.bg4 {
+    background-image: -webkit-gradient(linear, left top, right top, from(#5a49e9), to(#7a6cf0));
+    background-image: -webkit-linear-gradient(left, #5a49e9, #7a6cf0);
+    background-image: -o-linear-gradient(left, #5a49e9, #7a6cf0);
+    background-image: linear-gradient(to right, #5a49e9, #7a6cf0);
+}
+
+.row-cards-one .mycard.bg4::after {
+    background: #352d7b;
+}
+
+.row-cards-one .mycard.bg5 {
+    background-image: -webkit-gradient(linear, left top, right top, from(#cf0633), to(#f96079));
+    background-image: -webkit-linear-gradient(left, #cf0633, #f96079);
+    background-image: -o-linear-gradient(left, #cf0633, #f96079);
+    background-image: linear-gradient(to right, #cf0633, #f96079);
+}
+
+.row-cards-one .mycard.bg5::after {
+    background: #cf0633;
+}
+
+.row-cards-one .mycard.bg6 {
+    background-image: -webkit-gradient(linear, left top, right top, from(#129021), to(#1ed41e));
+    background-image: -webkit-linear-gradient(left, #129021, #1ed41e);
+    background-image: -o-linear-gradient(left, #129021, #1ed41e);
+    background-image: linear-gradient(to right, #129021, #1ed41e);
+}
+
+.row-cards-one .mycard.bg6::after {
+    background: #129021;
+}
+
+.row-cards-one .mycard {
+    border-radius: 3px;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.30) !important;
+    padding: 25px 40px 30px;
+    margin-bottom: 30px;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-pack: justify;
+    -ms-flex-pack: justify;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+    -webkit-transition: all 0.3s ease-in;
+    -o-transition: all 0.3s ease-in;
+    transition: all 0.3s ease-in;
+}
+
+.row-cards-one .mycard::after {
+    position: absolute;
+    content: " ";
+    width: 268px;
+    height: 500px;
+    top: -100px;
+    right: -50px;
+    -webkit-transform: rotate(28deg);
+    -ms-transform: rotate(28deg);
+    transform: rotate(28deg);
+}
+
+.row-cards-one .mycard .left {
+    position: inherit;
+    z-index: 9;
+}
+
+.row-cards-one .mycard .left .title {
+    font-size: 22px;
+    color: #fff;
+    line-height: 32px;
+    margin-bottom: 2px;
+    border-bottom: none;
+}
+
+.row-cards-one .mycard .left .number {
+    font-size: 42px;
+    line-height: 52px;
+    font-weight: 600;
+    display: block;
+    color: #fff;
+    margin-bottom: 20px;
+}
+
+.row-cards-one .mycard .left .link {
+    width: 80px;
+    height: 30px;
+    background: #fff;
+    border-radius: 50px;
+    line-height: 30px;
+    font-size: 14px;
+    display: block;
+    text-align: center;
+    -webkit-transition: all 0.3s ease-in;
+    -o-transition: all 0.3s ease-in;
+    transition: all 0.3s ease-in;
+}
+
+.row-cards-one .mycard .right .icon {
+    font-size: 80px;
+    font-weight: bold;
+    color: #fff;
+    position: inherit;
+    z-index: 9;
+}
+
+.c-info-box-area {
+    padding: 40px 30px 38px;
+    -webkit-transition: all 0.3s ease-in;
+    -o-transition: all 0.3s ease-in;
+    transition: all 0.3s ease-in;
+}
+
+.c-info-box-area .c-info-box.box1 {
+    border-color: #FFBF36;
+}
+
+.c-info-box-area .c-info-box {
+    width: 200px;
+    height: 200px;
+    margin: 0 auto;
+    border-width: 20px;
+    border-style: solid;
+    text-align: center;
+    border-radius: 50%;
+}
+
+.c-info-box-area .c-info-box p {
+    font-size: 30px;
+    font-weight: 600;
+    line-height: 160px;
+}
+
+.c-info-box-area .c-info-box-content {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.c-info-box-area .c-info-box-content .title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 2px;
+    border-bottom: none;
+    display: block;
+    padding-bottom: 0 !important;
+}
+
+.c-info-box-area .c-info-box-content .text {
+    font-size: 14px;
+    margin-bottom: 0px;
+}

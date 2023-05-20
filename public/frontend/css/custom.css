@@ -1,0 +1,42 @@
+
+a {
+    color:white;
+}
+.forgotten a ,.online-chat a,.register-link a{
+    color: rgba(var(--bs-link-color-rgb),var(--bs-link-opacity,1));
+    text-decoration: underline; 
+}
+
+.offers .form-check-input:checked,.form-switch .form-check-input:checked{
+    background-color: #0d6efd !important;
+    border-color: #0d6efd  !important;
+}
+
+.side-account ul li{
+    display:list-item;
+}
+
+#search-pop .bi-search path {
+    transform: scale(1.5);
+}
+
+#shopping-bag .sider-svg path {
+    transform: scale(1.5);
+}
+
+#my-account .sider-svg path {
+    transform: scale(1.5);
+}
+
+.video-box .container-xl iframe {
+    max-width:1400px !important;
+    min-height:360px !important;
+}
+.login-form .row.mt25 > .col-md-4.center
+{
+    margin-top: 5px !important;
+}
+
+.ragister-form .row.mt25 .row.mt15 > .col-md-4 {
+    margin-top: 5px !important;
+}

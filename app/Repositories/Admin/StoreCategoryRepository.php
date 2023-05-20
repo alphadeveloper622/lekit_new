@@ -1,0 +1,308 @@
+<?php
+
+namespace App\Repositories\Admin;
+
+use App\Http\Resources\SiteResource\ProductResource;
+use App\Models\StoreProfile;
+use App\Utility\StoreCategoryUtility;
+use App\Models\StoreCategory;
+use App\Models\StoreCategoryLanguage;
+use App\Models\StoresCategory;
+use App\Repositories\Interfaces\Admin\StoreCategoryInterface;
+use App\Repositories\Interfaces\Admin\StoreCategoryLanguageInterface;
+use App\Traits\ImageTrait;
+use App\Traits\SlugTrait;
+use Illuminate\Support\Facades\DB;
+
+class StoreCategoryRepository implements StoreCategoryInterface
+{
+    use SlugTrait;
+    use ImageTrait;
+
+    protected $catLang;
+
+    public function __construct(StoreCategoryLanguageInterface $catLang)
+    {
+        $this->catLang        = $catLang;
+    }
+
+    public function get($id)
+    {
+        return StoreCategory::find($id);
+    }
+    
+    public function getByLang($id, $lang)
+    {
+        if($lang == null):
+            $catByLang = StoreCategoryLanguage::with('storeCategory')->where('lang', 'en')->where('store_category_id', $id)->first();
+        else:
+            $catByLang = StoreCategoryLanguage::with('storeCategory')->where('lang', $lang)->where('store_category_id', $id)->first();
+            if(blank($catByLang)):
+                $catByLang = StoreCategoryLanguage::with('storeCategory')->where('lang', 'en')->where('store_category_id', $id)->first();
+                $catByLang['translation_null'] = 'not-found';
+            endif;
+        endif;
+
+        return $catByLang;
+    }
+
+    public function allCategory()
+    {
+        return StoreCategory::with('childCategories')->get();
+    }
+    public function all()
+    {
+        return StoreCategory::leftJoin('store_category_languages', 'store_category_languages.store_category_id', '=', 'store_categories.id')
+            ->select('store_categories.*', 'store_category_languages.id as category_lang_id', 'store_category_languages.title', 'store_category_languages.lang',
+                'store_category_languages.meta_title', 'store_category_languages.meta_description');
+    }
+    public function ajaxCategoryFilter($term){
+        return StoreCategory::with('childCategories','categoryLanguage')
+            ->whereHas('categoryLanguage', function ($query) use ($term) {
+                $query->where('title', 'like', '%'.$term.'%');
+            })
+            ->where('status',1)
+            ->where(function ($query){
+                $query->whereNull('position');
+                $query->orwhere('position',1);
+                $query->orwhere('position',2);
+            })->limit(50)->get();
+    }
+
+    public function getCategories($id)
+    {
+        return $this->allCategory()->where('parent_id', null)
+                ->whereNotIn('id', StoreCategoryUtility::childs($id))->where('id', '!=' , $id);
+    }
+
+    public function paginate($limit, $request)
+    {
+        return $this->all()->with('childCategories')->latest()->where('lang', 'en')
+            ->when($request->q != null, function($query) use ($request){
+                $query->whereHas('categoryLanguage', function ($q) use ($request){
+                    $q->where('title', 'like', '%'.$request->q.'%');
+                });
+//                $query->orWhereHas('childCategories', function ($q) use ($request){
+//                    $q->whereHas('categoryLanguage', function ($qu) use ($request){
+//                        $qu->orwhere('title', 'like', '%'.$request->q.'%');
+//                    });
+//                });
+    })
+            ->paginate($limit);
+    }
+
+    public function store($request)
+    {
+            $category                   = new StoreCategory();
+
+            if ($request->category != "") {
+                $category->parent_id        = $request->category;
+
+                $parent_cat = $this->get($request->category);
+                $category->position = $parent_cat->position + 1 ;
+
+                if ($category->position > 3):
+                    return $position_up = 'position_up';
+                endif;
+            }
+            if ($request->logo != ''):
+                $category->logo        = $this->getImageArrayRecommendedSize($request->logo,[140,130,80],[190,95,60]);
+                $category->logo_id     = $request->logo;
+            else:
+                $category->logo        = [];
+                $category->logo_id     = null;
+            endif;
+            if ($request->banner != ''):
+                $category->banner        = $this->getImageWithRecommendedSize($request->banner,835,200,true);
+                $category->banner_id     = $request->banner;
+            else:
+                $category->banner        = [];
+                $category->banner_id     = null;
+            endif;
+
+            $category->icon              = $request->icon ?? null;
+            $category->slug              = $this->getSlug($request->title, $request->slug);
+            $category->ordering          = $request->ordering ?? 0;
+            $category->commission        = $request->commission == null ? 0 : $request->commission;
+//            $category->is_digital        = $request->is_digital;
+            $category->save();
+
+            $request['category_id'] = $category->id;
+            if (!isset($request->lang)) :
+                $request['lang']    = 'en';
+            endif;
+            
+            $this->catLang->store($request);
+            return true;
+    }
+
+    public function update($request)
+    {
+            $category               = $this->get($request->category_id);
+            $category->parent_id    = $request->category;
+
+            $previous_position = $category->position;
+
+            if ($request->category != "") :
+                $category->parent_id = $request->category;
+
+                $parent_cat          = $this->get($request->category);
+                $category->position  = $parent_cat->position + 1 ;
+                if ($category->position > 3):
+                    return $position_up = 'position_up';
+                endif;
+            else:
+                $category->parent_id    = null;
+                $category->position     = null;
+            endif;
+
+            if($previous_position < $category->postion) :
+                StoreCategoryUtility::position($category->id, true);
+            elseif ($previous_position > $category->postion ):
+                StoreCategoryUtility::position($category->id, false);
+            endif;
+
+            $category->slug          = $this->getSlug($request->title, $request->slug);
+            $category->commission    = $request->commission == null ? 0 : $request->commission;
+//            $category->is_digital        = $request->is_digital;
+
+            if ($request->logo != ''):
+                $category->logo        = $this->getImageArrayRecommendedSize($request->logo,[140,130,80],[190,95,60]);
+                $category->logo_id     = $request->logo;
+            else:
+                $category->logo        = [];
+                $category->logo_id     = null;
+            endif;
+            if ($request->banner != ''):
+                $category->banner        = $this->getImageWithRecommendedSize($request->banner,835,200,true);
+                $category->banner_id     = $request->banner;
+            else:
+                $category->banner        = [];
+                $category->banner_id     = null;
+            endif;
+
+            $category->icon              = $request->icon ?? null;
+            $category->ordering          = $request->ordering ?? 0;
+            $category->save();
+
+            if ($request->cat_lang_id == '') :
+                $this->catLang->store($request);
+            else:
+                $this->catLang->update($request);
+            endif;
+            return true;
+    }
+
+    public function statusChange($request)
+    {
+            $category           = $this->get($request['id']);
+            $category->status   = $request['status'];
+            $category->save();
+            return true;
+    }
+
+    //for api
+    public function homePageCategory()
+    {
+        if (addon_is_activated('ishopet'))
+        {
+            $take = 7;
+        }
+        else{
+            $take = 9;
+        }
+        return StoreCategory::with(['childCategories' => function ($query){
+            $query->where('status',1);
+        }])->where('parent_id',null)->where('status',1)->orderBy('ordering')->take($take)->get();
+    }
+
+    public function shopCategory($user_id=null): array
+    {
+        $all_categories = [];
+        $categories = StoreCategory::with('childCategories:id,parent_id')->where('status',1)->where('parent_id',null)->selectRaw('id,slug,status,parent_id')->paginate(12);
+
+        foreach ($categories as $category) {
+            $category_ids = \App\Utility\StoreCategoryUtility::getMyAllChildIds($category->id,1);
+            $category_ids[] = $category->id;
+
+            $total_products = Product::whereIn('category_id',$category_ids)->when($user_id,function ($query) use($user_id){
+                if(authUser()->user_type == 'staff' || authUser()->user_type == 'admin')
+                {
+                    $query->where('user_id',1);
+                }
+                else{
+                    $query->where('user_id',$user_id);
+                }
+            })->ProductPublished()->UserCheck()->IsWholesale()->IsStockOut()->count();
+
+            if ($total_products > 0)
+            {
+                $all_categories[] = [
+                    'id' => $category->id,
+                    'title' => $category->getTranslation('title',languageCheck()),
+                    'total_products' => $total_products,
+                    'slug' => $category->slug,
+                ];
+            }
+        }
+
+        return $all_categories;
+    }
+
+    public function categoryPage()
+    {
+        return StoreCategory::with(['store_categories' => function ($query){
+            $query->where('status',1);
+        }])->where('status',1)->select('id','parent_id','logo','slug','banner')->where('parent_id',null)->latest()->get();
+    }
+
+    public function categoryProducts($id)
+    {
+        $category = StoreCategory::find($id);
+        if ($category)
+        {
+
+            $category_ids = \App\Utility\StoreCategoryUtility::getMyAllChildIds($id);
+            $category_ids[] = (int)$id;
+
+            $products =  Product::withCount('reviews')->withAvg('reviews','rating')->whereIn('category_id',$category_ids)
+                ->selectRaw('id,brand_id,category_id,status,price,special_discount,special_discount_type,special_discount_start,special_discount_end,rating,slug,thumbnail,minimum_order_quantity,has_variant,reward,current_stock')
+                ->ProductPublished()->orderBy('total_sale', 'desc')->latest()->take(8)->get();
+            $category->products = ProductResource::collection($products);
+            $category['title'] = $category->getTranslation('title',languageCheck());
+
+        }
+
+        return $category;
+    }
+
+    public function categoryByIds($top_category,$take= null)
+    {
+        if ($take)
+        {
+            $categories = StoreCategory::whereIn('id',$top_category)->select('id','logo','slug','icon','parent_id')->where('status',1)->get();
+        }
+        else{
+            $categories = StoreCategory::whereIn('id',$top_category)->select('id','logo','slug','icon','parent_id')->where('status',1)->get();
+        }
+
+        return $categories;
+    }
+
+    public function category($slug)
+    {
+        return StoreCategory::with('store_categories')->where('slug',$slug)->first();
+    }
+
+    public function mobileCategory($limit)
+    {
+        return StoreCategory::where('status',1)->where('parent_id',null)->latest()->paginate($limit);
+    }
+
+    //api end
+    public function categories($limit)
+    {
+        return StoreCategory::where('status',1)
+            ->select('id','parent_id','icon','logo','slug','banner')->latest()->paginate($limit);
+    }
+}
