@@ -257,6 +257,7 @@ class ProductRepository implements ProductInterface
         $product->slug              = $this->getSlug($request->name, $request->slug);
         $product->category_id       = $request->category != '' ? $request->category : null;
         $product->brand_id          = $request->brand != '' ? $request->brand : null;
+        $product->stores_id          = $request->store != '' ? $request->store : null;
         $product->created_by        = authUser($request)->id;
         if (authUser($request)->user_type != 'seller'):
             $product->user_id       = 1;
@@ -510,6 +511,7 @@ class ProductRepository implements ProductInterface
             $product->slug = $this->getSlug($request->name, $request->slug);
             $product->category_id = $request->category != '' ? $request->category : null;
             $product->brand_id = $request->brand != '' ? $request->brand : null;
+            $product->stores_id = $request->store != '' ? $request->store : null;
 //            $product->created_by                = Sentinel::getUser()->id;
 
             $product->minimum_order_quantity = $request->minimum_order_quantity != '' ? $request->minimum_order_quantity : 1;

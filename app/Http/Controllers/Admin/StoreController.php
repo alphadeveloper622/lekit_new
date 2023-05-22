@@ -53,7 +53,8 @@ class StoreController extends Controller
         $data = [
             'categories'    => $this->categories->allCategory()->where('parent_id', null)->where('status',1),
             'currency_list' => currencyList(),
-            'sellers' => $this->stores->allSeller()->get()
+            'sellers' => $this->stores->allSeller()->get(),
+            'selected_category' => null
         ];
 
         return view('admin.stores.form', $data);

@@ -251,7 +251,9 @@ active
                                 </div>
                                @endif
                             </div>
+                            
                             <div class="form-group text-right">
+                                <input type="hidden" name="store" value="{{@$store_id}}">
                                 <button type="submit" class="btn btn-outline-primary" tabindex="4">
                                     {{ __('Update') }}
                                 </button>

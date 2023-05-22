@@ -7,6 +7,7 @@ use App\Http\Requests\Admin\Product\CategoryRequest;
 use App\Repositories\Interfaces\Admin\LanguageInterface;
 use App\Repositories\Interfaces\Admin\Product\CategoryInterface;
 use App\Repositories\Interfaces\Admin\Product\CategoryLanguageInterface;
+use App\Repositories\Interfaces\Admin\StoreProfileInterface;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -16,26 +17,32 @@ class CategoryController extends Controller
     protected $category;
     protected $catLang;
     protected $languages;
+    protected $stores;
 
-    public function __construct(CategoryInterface $category, CategoryLanguageInterface $catLang, LanguageInterface $languages)
+    public function __construct(CategoryInterface $category, CategoryLanguageInterface $catLang, LanguageInterface $languages,StoreProfileInterface $stores)
     {
         $this->category     = $category;
         $this->catLang      = $catLang;
         $this->languages    = $languages;
+        $this->stores    = $stores;
     }
 
     public function index(Request $request)
     {
         try {
             $categories     = $this->category->paginate(get_pagination('index_form_paginate'),$request);
-            $all_categories = $this->category->allCategory()->where('parent_id', null);
-            return view('admin.products.categories.index', compact('categories','all_categories'));
+            //dd($this->category->allCategory()->where('parent_id', null));
+            $all_categories = $this->category->allCategory()->where('parent_id', null)->where('stores_id', '=', $request->store_id);
+            $stores=$this->stores->all()->get();
+            $store_id=$request->store_id;
+            return view('admin.products.categories.index', compact('categories','all_categories','stores','store_id'));
         } catch (\Exception $e) {
              Toastr::error($e->getMessage());
             return back();
         }
     }
 
+    
     public function store(CategoryRequest $request)
     {
         if (isDemoServer()):
@@ -56,7 +63,7 @@ class CategoryController extends Controller
             endif;
             Toastr::success(__('Created Successfully'));
             DB::commit();
-            return redirect()->route('categories');
+            return redirect()->route('categories',['store_id' => $request->get('store')]);
         } catch (\Exception $e) {
             DB::rollBack();
             Toastr::error($e->getMessage());
@@ -71,9 +78,12 @@ class CategoryController extends Controller
 
             $lang       = $request->lang != '' ? $request->lang : \App::getLocale();
             if ($category_language = $this->category->getByLang($id, $lang)):
-                $all_categories = $this->category->getCategories($id);
+                $store_id=$this->category->get($id)->stores_id;
+                $all_categories = $this->category->getCategories($id)->where('stores_id','=',$store_id);
                 $r              = $request->r != ''? $request->r : $request->server('HTTP_REFERER');
-                return view('admin.products.categories.update', compact('category_language','all_categories', 'languages', 'lang','r'));
+                //$store_id=$request->get('store')
+                $store=$store_id;
+                return view('admin.products.categories.update', compact('category_language','all_categories', 'languages', 'lang','r','store'));
             else:
                 Toastr::error(__('Not found'));
                 return back();

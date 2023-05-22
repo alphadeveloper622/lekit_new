@@ -12,7 +12,7 @@
             @include('admin.products.categories.child-categories', ['child_category' => $childCategory, 'parent' => @$parent])
         @endforeach
     @else
-        @foreach ($child_category->categories->where('position','<',2) as $childCategory)
+        @foreach ($child_category->categories->where('position','<',4) as $childCategory)
             @include('admin.products.categories.child-categories', ['child_category' => $childCategory, 'parent' => @$parent])
         @endforeach
     @endif

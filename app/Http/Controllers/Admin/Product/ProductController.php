@@ -16,6 +16,7 @@ use App\Repositories\Interfaces\Admin\Product\CategoryInterface;
 use App\Repositories\Interfaces\Admin\Product\ColorInterface;
 use App\Repositories\Interfaces\Admin\Product\ProductInterface;
 use App\Repositories\Interfaces\Admin\SellerInterface;
+use App\Repositories\Interfaces\Admin\StoreProfileInterface;
 use Brian2694\Toastr\Facades\Toastr;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -27,6 +28,7 @@ class ProductController extends Controller
     protected $products;
     protected $categories;
     protected $brands;
+    protected $stores;
     protected $colors;
     protected $attributes;
     protected $vat_tax;
@@ -40,7 +42,8 @@ class ProductController extends Controller
                                 AttributeInterface $attributes,
                                 VatTaxRepository $vat_tax,
                                 SellerInterface $sellers,
-                                LanguageInterface $languages){
+                                LanguageInterface $languages,
+                                StoreProfileInterface $store){
         $this->products         = $products;
         $this->categories       = $categories;
         $this->brands           = $brands;
@@ -49,6 +52,7 @@ class ProductController extends Controller
         $this->vat_tax          = $vat_tax;
         $this->languages        = $languages;
         $this->sellers          = $sellers;
+        $this->stores           = $store;
     }
     public function index(Request $request, $status = null){
         try {
@@ -135,6 +139,7 @@ class ProductController extends Controller
             'brands'        => $this->brands->all()->where('lang','en')->where('status',1)->get(),
             'colors'        => $this->colors->all()->where('lang', 'en')->get(),
             'attributes'    => $this->attributes->all()->where('lang', 'en')->get(),
+            'stores'         => $this->stores->all()->get(),
             'campaigns'     => \App\Models\Campaign::where('status', 1)->where('end_date','>',Carbon::now()->format('Y-m-d'))->get(),
             'r'             => $request->r != ''? $request->r : $request->server('HTTP_REFERER')
         ];
@@ -195,6 +200,7 @@ class ProductController extends Controller
                     'categories'        => $this->categories->allCategory()->where('parent_id', null)->where('status',1),
                     'brands'            => $this->brands->all()->where('lang','en')->where('status',1)->get(),
                     'colors'            => $this->colors->all()->where('lang', 'en')->get(),
+                    'stores'            => $this->stores->all()->get(),
                     'attributes'        => $this->attributes->all()->where('lang', 'en')->get(),
                     'campaigns'         => \App\Models\Campaign::where('status', 1)->where('end_date','>',Carbon::now()->format('Y-m-d'))->get(),
                     'r'                 => $request->r != ''? $request->r : $request->server('HTTP_REFERER'),
@@ -202,6 +208,7 @@ class ProductController extends Controller
                     'product_language'  => $product_language,
                     'lang'              => $lang
                 ];
+                
                 return view('admin.products.products.edit',$data);
 
             else:

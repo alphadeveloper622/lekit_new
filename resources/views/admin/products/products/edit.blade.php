@@ -218,6 +218,35 @@
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <div class="form-group">
+                                                    <label for="brand">{{ __('Store') }}</label>
+                                                    @if(!isset($clone))
+                                                        <input type="hidden"
+                                                                value="{{ $product_language->translation_null == 'not-found' ? '' : $product_language->id }}"
+                                                                name="product_lang_id">
+                                                        <input type="hidden" value="{{ $lang }}" name="lang">
+                                                        <input type="hidden" name="id"
+                                                                value="{{ $product_language->product_id }}">
+                                                    @endif
+                                                    <select class="form-control select2" name="store" id="store">
+                                                        <option value="">{{ __('Select Store') }}</option>
+                                                        
+                                                        @foreach($stores as $store)
+                                                            <option
+                                                                    value="{{ $store->id }}" {{ $store->id == old('store') ? 'selected' : ($product_language->product->stores_id == $store->id ? 'selected' : '') }}>{{ $store->store_name }}</option>
+                                                        @endforeach
+                                                    </select>
+
+                                                    @if ($errors->has('store'))
+                                                        <div class="invalid-feedback">
+                                                            <p>{{ $errors->first('store') }}</p>
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group">
                                                     <label for="unit">{{__('Unit') }} *</label>
                                                     <input type="text" name="unit" id="unit"
                                                            value="{{ old('unit') ? old('unit') : ($product_language ? $product_language->unit : '') }}"

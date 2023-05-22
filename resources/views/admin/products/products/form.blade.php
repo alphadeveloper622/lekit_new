@@ -175,6 +175,26 @@
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <div class="form-group">
+                                                    <label for="brand">{{ __('Store') }}</label>
+                                                    <select class="form-control select2" name="store" id="store">
+                                                        <option value="">{{ __('Select Store') }}</option>
+                                                        @foreach($stores as $store)
+                                                            <option
+                                                                    value="{{ $store->id }}" {{ $store->id == old('store') ? 'selected' : '' }}>{{ $store->store_name}}</option>
+                                                        @endforeach
+                                                    </select>
+
+                                                    @if ($errors->has('store'))
+                                                        <div class="invalid-feedback">
+                                                            <p>{{ $errors->first('store') }}</p>
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group">
                                                     <label for="unit">{{__('Unit') }} *</label>
                                                     <input type="text" name="unit" id="unit"
                                                            value="{{ old('unit') ? old('unit') : '' }}"

@@ -28,13 +28,34 @@
                         <form action="">
                             <div class="card-header input-title">
                                 <h4>{{__('Categories')}}</h4>
+                                <div class="">
+                                    <div class="input-group" style="display: inline-flex; padding-top: 5px;">
+                                        <label for="name" style="padding-right: 10px;">{{ __('Store') }}</label>
+
+                                        <select class="form-control selectric lang" name="store_id">
+                                            <option value="">{{ __('Select Store') }}</option>
+                                            @foreach($stores as $store)
+                                                <option value="{{ $store->id }}" {{ $store->id == @$store_id ? 'selected' : '' }}>{{ $store->store_name }}</option>
+                                            @endforeach
+                                        </select>
+                                        <div class="input-group-btn">
+                                            <button class="btn btn-outline-primary note-btn" style="margin-top: -2px;min-height: 42px;min-width: 48px;"><i class="bx bx-search"></i>
+                                            </button>
+                                        </div>
+                                        @if ($errors->has('store'))
+                                            <div class="invalid-feedback">
+                                                <p>{{ $errors->first('store') }}</p>
+                                            </div>
+                                        @endif
+                                    </div>
+                                </div>
                                 <div class="card-header-form">
                                     <form class="form-inline" id="sorting">
                                         <div class="input-group">
                                             <input type="text" class="form-control" name="q" value="{{ @$q }}"
                                                    placeholder="{{ __('Search') }}">
                                             <div class="input-group-btn">
-                                                <button class="btn btn-outline-primary"><i class="bx bx-search"></i>
+                                                <button class="btn btn-outline-primary note-btn"><i class="bx bx-search"></i>
                                                 </button>
                                             </div>
                                         </div>
@@ -364,6 +385,7 @@
                                         @endif
                                     </div>
                                     <div class="form-group text-right">
+                                        <input type="hidden" name="store" value={{@$store_id}}>
                                         <button type="submit" class="btn btn-outline-primary" tabindex="4">
                                             {{ __('Save') }}
                                         </button>

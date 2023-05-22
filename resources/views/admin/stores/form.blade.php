@@ -645,9 +645,9 @@
                                     <!-- <a  class="btn btn-outline-secondary mr-1">
                                             {{ __('Reviews') }}
                                     </a> -->
-                                    <!-- <a  class="btn btn-outline-secondary mr-auto">
+                                    <a  class="btn btn-outline-secondary mr-auto" href="{{ route('categories') }}">
                                         {{ __('Categories') }}
-                                    </a> -->
+                                    </a>
                                     <button type="submit" class="btn btn-outline-primary">
                                         {{ $button_name }}
                                     </button>

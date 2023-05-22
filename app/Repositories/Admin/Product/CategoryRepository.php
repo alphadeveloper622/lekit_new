@@ -76,18 +76,23 @@ class CategoryRepository implements CategoryInterface
 
     public function paginate($limit, $request)
     {
-        return $this->all()->with('childCategories')->latest()->where('lang', 'en')
+        return $this->all()->with('childCategories')->latest()->where('lang', 'en')->where('stores_id', '=', $request->store_id)
             ->when($request->q != null, function($query) use ($request){
                 $query->whereHas('categoryLanguage', function ($q) use ($request){
                     $q->where('title', 'like', '%'.$request->q.'%');
-                });
-//                $query->orWhereHas('childCategories', function ($q) use ($request){
-//                    $q->whereHas('categoryLanguage', function ($qu) use ($request){
-//                        $qu->orwhere('title', 'like', '%'.$request->q.'%');
-//                    });
-//                });
-    })
-            ->paginate($limit);
+                });})->paginate($limit);
+        // return $this->all()->with('childCategories')->latest()->where('lang', 'en')
+        // ->when($request->q != null, function($query) use ($request){
+        //     $query->whereHas('categoryLanguage', function ($q) use ($request){
+        //         $q->where('title', 'like', '%'.$request->q.'%');
+        //     });})->when($request->store_id != null, function($query) use ($request){
+        //         $query->where('stores_id', '=', $request->store_id);
+        //         })->paginate($limit);                    
+        // return $this->all()->with('childCategories')->latest()->where('lang', 'en')
+        // ->when($request->q != null, function($query) use ($request){
+        //     $query->whereHas('categoryLanguage', function ($q) use ($request){
+        //         $q->where('title', 'like', '%'.$request->q.'%');
+        //     });})->paginate($limit);            
     }
 
     public function store($request)
@@ -123,6 +128,7 @@ class CategoryRepository implements CategoryInterface
             $category->slug              = $this->getSlug($request->title, $request->slug);
             $category->ordering          = $request->ordering ?? 0;
             $category->commission        = $request->commission == null ? 0 : $request->commission;
+            $category->stores_id        = $request->store == null ? null : $request->store;
 //            $category->is_digital        = $request->is_digital;
             $category->save();
 
@@ -181,6 +187,7 @@ class CategoryRepository implements CategoryInterface
 
             $category->icon              = $request->icon ?? null;
             $category->ordering          = $request->ordering ?? 0;
+            $category->stores_id         = $request->store? $request->store:null;
             $category->save();
 
             if ($request->cat_lang_id == '') :
